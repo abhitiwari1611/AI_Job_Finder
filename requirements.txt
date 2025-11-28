@@ -1,4 +1,6 @@
 flask
+gunicorn
 openai
 python-dotenv
 pypdf
+requests
