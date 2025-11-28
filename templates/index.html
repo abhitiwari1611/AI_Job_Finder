@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>AI Job Finder</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      max-width: 1000px;
+      margin: 0 auto;
+      padding: 20px;
+      background: #f5f5f5;
+    }
+    h1 {
+      text-align: center;
+    }
+    .card {
+      background: #ffffff;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      margin-bottom: 20px;
+    }
+    label {
+      display: block;
+      margin-top: 10px;
+      font-weight: bold;
+    }
+    input[type="text"],
+    input[type="number"],
+    input[type="file"] {
+      width: 100%;
+      padding: 8px;
+      margin-top: 6px;
+      border-radius: 5px;
+      border: 1px solid #ccc;
+    }
+    button {
+      margin-top: 15px;
+      padding: 10px 20px;
+      background: #2563eb;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 16px;
+    }
+    button:hover {
+      background: #1d4ed8;
+    }
+    .error {
+      color: #b91c1c;
+      font-weight: bold;
+      margin-bottom: 10px;
+    }
+    .job {
+      border-bottom: 1px solid #eee;
+      padding: 15px 0;
+    }
+    .job-title {
+      font-size: 18px;
+      font-weight: bold;
+    }
+    .job-meta {
+      font-size: 14px;
+      color: #555;
+    }
+    .job-score {
+      font-weight: bold;
+      color: #16a34a;
+    }
+    .analysis {
+      white-space: pre-wrap;
+      background: #f9fafb;
+      padding: 10px;
+      border-radius: 8px;
+      margin-top: 8px;
+      font-size: 14px;
+    }
+    a.apply-link {
+      color: #2563eb;
+      text-decoration: none;
+      font-size: 14px;
+    }
+    a.apply-link:hover {
+      text-decoration: underline;
+    }
+  </style>
+</head>
+<body>
+  <h1>🧠 AI Job Finder (Resume-Based)</h1>
+
+  <div class="card">
+    <p>
+      Upload your resume and enter a target role. The system will:
+    </p>
+    <ul>
+      <li>Fetch live jobs from JSearch API</li>
+      <li>Use ChatGPT to score each job against your resume</li>
+      <li>Show top matches with reasons and a ready LinkedIn message</li>
+    </ul>
+
+    {% if error %}
+      <div class="error">{{ error }}</div>
+    {% endif %}
+
+    <form method="POST" enctype="multipart/form-data">
+      <label for="resume">📄 Resume (PDF only)</label>
+      <input type="file" name="resume" id="resume" accept=".pdf" required />
+
+      <label for="target_role">🎯 Target Role</label>
+      <input
+        type="text"
+        name="target_role"
+        id="target_role"
+        placeholder="e.g. Data Science Intern, ML Engineer, Data Analyst"
+        required
+      />
+
+      <label for="location">📍 Preferred Location</label>
+      <input
+        type="text"
+        name="location"
+        id="location"
+        placeholder="e.g. India, Bangalore, Remote"
+        value="India"
+      />
+
+      <label for="max_jobs">🔢 How many jobs to evaluate?</label>
+      <input
+        type="number"
+        name="max_jobs"
+        id="max_jobs"
+        min="1"
+        max="20"
+        value="10"
+      />
+
+      <button type="submit">🚀 Find & Score Jobs</button>
+    </form>
+  </div>
+
+  {% if jobs and jobs|length > 0 %}
+    <div class="card">
+      <h2>✅ Top Matched Jobs</h2>
+      <p>Sorted by match score (highest first).</p>
+
+      {% for job in jobs %}
+        <div class="job">
+          <div class="job-title">
+            {{ job.title }} @ {{ job.company }}
+          </div>
+          <div class="job-meta">
+            📍 {{ job.location or "Location not specified" }} |
+            <span class="job-score">Score: {{ job.score }}</span>
+          </div>
+          {% if job.apply_link %}
+            <div>
+              🔗 <a class="apply-link" href="{{ job.apply_link }}" target="_blank">Apply / View Job</a>
+            </div>
+          {% endif %}
+          <div class="analysis">
+{{ job.analysis_text }}
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+  {% endif %}
+</body>
+</html>
